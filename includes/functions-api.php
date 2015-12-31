@@ -18,7 +18,8 @@ function yourls_api_action_shorturl() {
 	$url = ( isset( $_REQUEST['url'] ) ? $_REQUEST['url'] : '' );
 	$keyword = ( isset( $_REQUEST['keyword'] ) ? $_REQUEST['keyword'] : '' );
 	$title = ( isset( $_REQUEST['title'] ) ? $_REQUEST['title'] : '' );
-	$return = yourls_add_new_link( $url, $keyword, $title );
+	$pass = ( isset( $_REQUEST['pass'] ) ? $_REQUEST['pass'] : '' );
+	$return = yourls_add_new_link( $url, $keyword, $title, $pass );
 	$return['simple'] = ( isset( $return['shorturl'] ) ? $return['shorturl'] : '' ); // This one will be used in case output mode is 'simple'
 	unset( $return['html'] ); // in API mode, no need for our internal HTML output
 	return yourls_apply_filter( 'api_result_shorturl', $return );

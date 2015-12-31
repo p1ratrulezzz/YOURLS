@@ -17,7 +17,7 @@ function yourls_get_shorturl_charset() {
         $charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     } else {
         // defined to 36, or wrongly defined 
-        $charset = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
 
 	$charset = yourls_apply_filter( 'get_shorturl_charset', $charset );
@@ -141,17 +141,19 @@ function yourls_delete_link_by_keyword( $keyword ) {
  * SQL query to insert a new link in the DB. Returns boolean for success or failure of the inserting
  *
  */
-function yourls_insert_link_in_db( $url, $keyword, $title = '' ) {
+function yourls_insert_link_in_db( $url, $keyword, $title = '', $pass='' ) {
 	global $ydb;
 	
 	$url     = yourls_escape( yourls_sanitize_url( $url ) );
 	$keyword = yourls_escape( yourls_sanitize_keyword( $keyword ) );
 	$title   = yourls_escape( yourls_sanitize_title( $title ) );
+	$pass   = yourls_escape( yourls_sanitize_title( $pass ) );
+	
 
 	$table = YOURLS_DB_TABLE_URL;
 	$timestamp = date('Y-m-d H:i:s');
 	$ip = yourls_get_IP();
-	$insert = $ydb->query("INSERT INTO `$table` (`keyword`, `url`, `title`, `timestamp`, `ip`, `clicks`) VALUES('$keyword', '$url', '$title', '$timestamp', '$ip', 0);");
+	$insert = $ydb->query("INSERT INTO `$table` (`keyword`, `url`, `title`, `timestamp`, `ip`, `clicks`,`pass`) VALUES('$keyword', '$url', '$title', '$timestamp', '$ip', 0,'$pass');");
 	
 	yourls_do_action( 'insert_link', (bool)$insert, $url, $keyword, $title, $timestamp, $ip );
 	
@@ -180,7 +182,7 @@ function yourls_url_exists( $url ) {
  * Add a new link in the DB, either with custom keyword, or find one
  *
  */
-function yourls_add_new_link( $url, $keyword = '', $title = '' ) {
+function yourls_add_new_link( $url, $keyword = '', $title = '', $pass = '' ) {
 	// Allow plugins to short-circuit the whole function
 	$pre = yourls_apply_filter( 'shunt_add_new_link', false, $url, $keyword, $title );
 	if ( false !== $pre )
@@ -211,7 +213,7 @@ function yourls_add_new_link( $url, $keyword = '', $title = '' ) {
 		}
 	}
 
-	yourls_do_action( 'pre_add_new_link', $url, $keyword, $title );
+	yourls_do_action( 'pre_add_new_link', $url, $keyword, $title, $pass );
 	
 	$strip_url = stripslashes( $url );
 	$return = array();
@@ -240,7 +242,7 @@ function yourls_add_new_link( $url, $keyword = '', $title = '' ) {
 				$return['message'] = yourls_s( 'Short URL %s already exists in database or is reserved', $keyword );
 			} else {
 				// all clear, store !
-				yourls_insert_link_in_db( $url, $keyword, $title );
+				yourls_insert_link_in_db( $url, $keyword, $title, $pass );
 				$return['url']      = array('keyword' => $keyword, 'url' => $strip_url, 'title' => $title, 'date' => date('Y-m-d H:i:s'), 'ip' => $ip );
 				$return['status']   = 'success';
 				$return['message']  = /* //translators: eg "http://someurl/ added to DB" */ yourls_s( '%s added to database', yourls_trim_long_string( $strip_url ) );
@@ -258,10 +260,10 @@ function yourls_add_new_link( $url, $keyword = '', $title = '' ) {
 			$id = yourls_get_next_decimal();
 			$ok = false;
 			do {
-				$keyword = yourls_int2string( $id );
+				$keyword = generateRandomString(6);//yourls_int2string( $id );
 				$keyword = yourls_apply_filter( 'random_keyword', $keyword, $url, $title );
 				if ( yourls_keyword_is_free($keyword) ) {
-					if( @yourls_insert_link_in_db( $url, $keyword, $title ) ){
+					if( @yourls_insert_link_in_db( $url, $keyword, $title, $pass ) ){
 						// everything ok, populate needed vars
 						$return['url']      = array('keyword' => $keyword, 'url' => $strip_url, 'title' => $title, 'date' => $timestamp, 'ip' => $ip );
 						$return['status']   = 'success';
@@ -301,12 +303,21 @@ function yourls_add_new_link( $url, $keyword = '', $title = '' ) {
 	return yourls_apply_filter( 'add_new_link', $return, $url, $keyword, $title );
 }
 
+function generateRandomString($length = 6) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}
 
 /**
  * Edit a link
  *
  */
-function yourls_edit_link( $url, $keyword, $newkeyword='', $title='' ) {
+function yourls_edit_link( $url, $keyword, $newkeyword='', $title='',$pass='' ) {
 	// Allow plugins to short-circuit the whole function
 	$pre = yourls_apply_filter( 'shunt_edit_link', null, $keyword, $url, $keyword, $newkeyword, $title );
 	if ( null !== $pre )
@@ -318,6 +329,7 @@ function yourls_edit_link( $url, $keyword, $newkeyword='', $title='' ) {
 	$url = yourls_escape (yourls_sanitize_url( $url ) );
 	$keyword = yourls_escape( yourls_sanitize_string( $keyword ) );
 	$title = yourls_escape( yourls_sanitize_title( $title ) );
+	$pass = yourls_escape( yourls_sanitize_title( $pass ) );
 	$newkeyword = yourls_escape( yourls_sanitize_string( $newkeyword ) );
 	$strip_url = stripslashes( $url );
 	$strip_title = stripslashes( $title );
@@ -341,7 +353,7 @@ function yourls_edit_link( $url, $keyword, $newkeyword='', $title='' ) {
 	
 	// All clear, update
 	if ( ( !$new_url_already_there || yourls_allow_duplicate_longurls() ) && $keyword_is_ok ) {
-			$update_url = $ydb->query( "UPDATE `$table` SET `url` = '$url', `keyword` = '$newkeyword', `title` = '$title' WHERE `keyword` = '$keyword';" );
+			$update_url = $ydb->query( "UPDATE `$table` SET `url` = '$url', `keyword` = '$newkeyword', `title` = '$title', `pass` = '$pass' WHERE `keyword` = '$keyword';" );
 		if( $update_url ) {
 			$return['url']     = array( 'keyword' => $newkeyword, 'shorturl' => YOURLS_SITE.'/'.$newkeyword, 'url' => $strip_url, 'display_url' => yourls_trim_long_string( $strip_url ), 'title' => $strip_title, 'display_title' => yourls_trim_long_string( $strip_title ) );
 			$return['status']  = 'success';
@@ -474,6 +486,14 @@ function yourls_get_keyword_info( $keyword, $field, $notfound = false ) {
 		$return = $infos[ $field ];
 
 	return yourls_apply_filter( 'get_keyword_info', $return, $keyword, $field, $notfound );	
+}
+
+/**
+ * Return pass associated with keyword. Optional $notfound = string default message if nothing found
+ *
+ */
+function yourls_get_keyword_pass( $keyword, $notfound = false ) {
+	return yourls_get_keyword_info( $keyword, 'pass', $notfound );
 }
 
 /**
@@ -1814,7 +1834,7 @@ function yourls_get_remote_title( $url ) {
 
 	$title = $charset = false;
     
-    $max_bytes = yourls_apply_filter( 'get_remote_title_max_byte', 32768 ); // limit data fetching to 32K in order to find a <title> tag
+    $max_bytes = yourls_apply_filter( 'get_remote_title_max_byte', 2048 ); // limit data fetching to 2K in order to find a <title> tag
 	
 	$response = yourls_http_get( $url, array(), array(), array( 'max_bytes' => $max_bytes ) ); // can be a Request object or an error string
 	if( is_string( $response ) ) {

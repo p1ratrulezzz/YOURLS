@@ -675,7 +675,7 @@ function yourls_encodeURI( $url ) {
 		'%27' => '\'', '%28' => '(', '%29' => ')', '%23' => '#',
     ) );
 	// @TODO:
-	// Known limit: this will most likely break IDN URLs such as http://www.académie-française.fr/
+	// Known limit: this will most likely break IDN URLs such as http://www.acad mie-fran aise.fr/
 	// To fully support IDN URLs, advocate use of a plugin.
 	return yourls_apply_filter( 'encodeURI', $result, $url );
 }

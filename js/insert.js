@@ -35,10 +35,11 @@ function add_link() {
 		return;
 	}
 	var keyword = $("#add-keyword").val();
+	var pass = $("#add-pass").val();
 	add_loading("#add-button");
 	$.getJSON(
 		ajaxurl,
-		{action:'add', url: newurl, keyword: keyword, nonce: nonce},
+		{action:'add', url: newurl, keyword: keyword, nonce: nonce, pass:pass},
 		function(data){
 			if(data.status == 'success') {
 				$('#main_table tbody').prepend( data.html ).trigger("update");
@@ -137,11 +138,12 @@ function edit_link_save(id) {
 	var newkeyword = $("#edit-keyword-" + id).val();
 	var title = $("#edit-title-" + id).val();
 	var keyword = $('#old_keyword_'+id).val();
+	var pass = $('#edit-pass-' + id).val();
 	var nonce = $('#nonce_'+id).val();
 	var www = $('#yourls-site').val();
 	$.getJSON(
 		ajaxurl,
-		{action:'edit_save', url: newurl, id: id, keyword: keyword, newkeyword: newkeyword, title: title, nonce: nonce },
+		{action:'edit_save', url: newurl, id: id, keyword: keyword, newkeyword: newkeyword, title: title, pass: pass, nonce: nonce },
 		function(data){
 			if(data.status == 'success') {
 			

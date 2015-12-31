@@ -156,12 +156,14 @@ if ( isset( $_GET['u'] ) or isset( $_GET['up'] ) ) {
 	}
 	$keyword = ( isset( $_GET['k'] ) ? ( $_GET['k'] ) : '' );
 	$title   = ( isset( $_GET['t'] ) ? ( $_GET['t'] ) : '' );
-	$return  = yourls_add_new_link( $url, $keyword, $title );
+	$pass   = ( isset( $_GET['p'] ) ? ( $_GET['p'] ) : '' );
+	
+	$return  = yourls_add_new_link( $url, $keyword, $title, $pass );
 	
 	// If fails because keyword already exist, retry with no keyword
 	if ( isset( $return['status'] ) && $return['status'] == 'fail' && isset( $return['code'] ) && $return['code'] == 'error:keyword' ) {
 		$msg = $return['message'];
-		$return = yourls_add_new_link( $url, '', $ydb );
+		$return = yourls_add_new_link( $url, '', $ydb, $pass );
 		$return['message'] .= ' ('.$msg.')';
 	}
 	
