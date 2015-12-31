@@ -7,8 +7,9 @@
 
 Quick Start
 -----------
-To get started, check [yourls.org](http://yourls.org)!  
-Learn more tweaks in the [Wiki documentation](https://github.com/YOURLS/YOURLS/wiki/).
+To get started, check [yourls.org](http://yourls.org)!    
+To get password protected links add column **pass** ***VARCHAR(20)*** to **yourls_url** table	  
+Learn more tweaks in the [Wiki documentation](https://github.com/YOURLS/YOURLS/wiki/).  
 
 
 Community news, tips and tricks
