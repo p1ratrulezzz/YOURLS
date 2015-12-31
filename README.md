@@ -4,12 +4,16 @@
 
 **YOURLS** is a set of PHP scripts that will allow you to run <strong>Y</strong>our <strong>O</strong>wn <strong>URL</strong> <strong>S</strong>hortener. You'll have full control over your data, detailed stats, analytics, plugins, and more. It's free.
 
-
 Quick Start
 -----------
-To get started, check [yourls.org](http://yourls.org)!    
-To get password protected links add column **pass** ***VARCHAR(20)*** to **yourls_url** table	  
-Learn more tweaks in the [Wiki documentation](https://github.com/YOURLS/YOURLS/wiki/).  
+To get started, check [yourls.org](http://yourls.org)!
+Learn more tweaks in the [Wiki documentation](https://github.com/YOURLS/YOURLS/wiki/).
+
+
+To Protect Your Links With Password  
+-----------------------------------
+* Add column **pass** ***VARCHAR(20)*** to **yourls_url** table  
+* Activate **Protected URLS** plugin
 
 
 Community news, tips and tricks
