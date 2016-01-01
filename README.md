@@ -14,6 +14,7 @@ To Protect Your Links With Password
 -----------------------------------
 * Add column **pass** ***VARCHAR(20)*** to **yourls_url** table  
 * Activate **Protected URLS** plugin
+* Post **pass** parameter over API, when needed
 
 
 Community news, tips and tricks
