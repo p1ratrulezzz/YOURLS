@@ -23,7 +23,10 @@ function gural_yourls_protected_keyword( $args ) {
 	
 	//echo "Pass : ".$pass." <br>";die();
 	
-	if (isset($pass) && $pass != "")
+	if (empty($pass)) {
+		return true;
+	}
+	elseif (isset($pass) && $pass != "")
 	{
 		$postedPass = $_POST['pass'];
 		if (!$postedPass || $pass != $postedPass)
