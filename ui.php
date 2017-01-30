@@ -67,7 +67,7 @@ if ( isset( $_REQUEST['url'] ) && $_REQUEST['url'] != 'http://' ) {
 		echo "<h2>$message</h2>";
 	}
 	
-	if( $status == 'success' ) {
+	if( $status == 'success' || !empty($shorturl)) {
 		// Include the Copy box and the Quick Share box
 		yourls_share_box( $url, $shorturl, $title, $text );
 		
